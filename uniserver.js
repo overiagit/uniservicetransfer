@@ -64,7 +64,7 @@ function getTransfersFromJson(json){
 
     if(transArr && Array.isArray(transArr)){
         const vehikle0 = transArr[0].Vehicles;
-        const vehikle1 = transArr[1].Vehicles;
+        const vehikle1 = (transArr[1]??transArr[0]).Vehicles;
         let vehiclesArr0 = Object.keys(vehikle0.StartDate).length === 0 
                             ? vehikle0.EndDate.Vehicle : vehikle0.StartDate.Vehicle;
         let  vehiclesArr1 = Object.keys(vehikle1.StartDate).length === 0 
