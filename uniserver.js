@@ -13,33 +13,23 @@ app.use(express.json());
 
 // app.get("/trans", handleGetData);
 app.post("/trans", handlePostDataJson);
-app.listen(PORT);
+try { 
+    app.listen(PORT,()=>console.log(`Server started at port ${PORT}`) );
 
+} catch (error) {
+    console.log(error);
 
-async function handleGetData(request, response){
-    //  console.clear();
-    let uni_hotel_id = request.query.id;
-    let ages = request.query.ages;
-    let start = request.query.start;
-    let end = request.query.end;
-    let uni_country_id = request.query.country_id;
-    let uni_room_id = request.query.uni_room_id;
-    let currency = request.query.currency;
-    let citizenship= request.query.citizenship;
-
-    let data = await getFromUni(uni_country_id, uni_hotel_id,uni_room_id,start
-        ,end,ages,citizenship,currency,  myHandleData);
-       let json = xmlParser.toJson(data);
-
-       const transfers =  JSON.stringify( getTransfersFromJson(json));    
-    //    console.log(json);
-    response.send(transfers);
 }
+
+
+
 
 async function handlePostDataJson(request, response){
   
     try{   
     let param = (request.body);
+        //  console.log(param);
+
     let data = await getFromUni(param.uni_country_id, param.uni_hotel_id,param.room_type_id,param.db
         ,param.de,param.ages,param.citizenship,2, myHandleData);
        let json = await xmlParser.toJson(data);  
@@ -108,11 +98,11 @@ function getTransfersFromJson(json){
 
 function getRateCodeByCountry(uni_country_id){
     switch (uni_country_id){
-        case 228:
+        case '228':
             return "4XSC6";
-        case 217:
+        case '217':
             return "9CN2L";
-        case 208:
+        case '208':
             return  "8PCNF";//"NZ8FC";
         default:
             return "4XSC6";
@@ -121,6 +111,8 @@ function getRateCodeByCountry(uni_country_id){
 
 const getFromUni = async (uni_country_id, uni_hotel_id,room_id,start
     ,end,persons,citzenship)=>{  
+
+        room_id = '';
 
 
     const rate_code = getRateCodeByCountry(uni_country_id);
@@ -152,7 +144,9 @@ const getFromUni = async (uni_country_id, uni_hotel_id,room_id,start
         <NettoPrice></NettoPrice>
       </query_request>
     </envelope>`; 
+    //  console.log(xmlBodyStr);
      const xml_out = await getFetchUni(xmlBodyStr);
+    //  console.log(xml_out);
     
      return xml_out;
     
