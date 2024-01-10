@@ -3,6 +3,8 @@ import express from "express";
 import xmlParser from 'xml2json';
 import cors from 'cors';
 
+import * as fs from 'fs';
+
  import fetch from "node-fetch";
  dotenv.config();
  
@@ -38,7 +40,7 @@ async function handlePostDataJson(request, response){
     response.send(transfers);
     }
     catch(e){
-        // console.log('error',e.message);
+        console.log('error',e.message);
     }
 }
 
@@ -49,8 +51,28 @@ function getTransfersFromJson(json){
 
     // console.clear();
     const data = JSON.parse(json);
-    const transArr = data?.envelope?.query_response
-    ?.SuccessResponse?.Hotel?.Transfers?.Transfer;
+
+    // console.log('data-- ', data);
+   
+    // const transArr1 = data?.envelope?.query_response
+    // ?.SuccessResponse?.Hotel?.Transfers?.Transfer;
+
+    // const transArr = data?.envelope?.query_response
+    // ?.SuccessResponse?.Hotel[0]?.Transfers?.Transfer;
+
+    const hotel = data?.envelope?.query_response
+    ?.SuccessResponse?.Hotel;
+
+    let transArr = null;
+    if(Array.isArray(hotel))
+         transArr = hotel[0]?.Transfers?.Transfer;
+    else
+         transArr = hotel?.Transfers?.Transfer;
+
+    // console.log('transArr1',transArr1);
+
+    // console.log('transArr',transArr);
+
 
     if(transArr && Array.isArray(transArr)){
         const vehikle0 = transArr[0].Vehicles;
@@ -66,7 +88,7 @@ function getTransfersFromJson(json){
                            if(! Array.isArray(vehiclesArr1) ) 
                            vehiclesArr1 = [vehiclesArr1] ;   
 
-                            // console.log("vehiclesArr0", vehiclesArr0);
+                            //  console.log("vehiclesArr0", vehiclesArr0);
 
                             vehiclesArr0.forEach((item0)=>{
                                 let veh1 = vehiclesArr1.find((item1 , index1)=> {
@@ -75,7 +97,7 @@ function getTransfersFromJson(json){
 
                                 if(veh1){
                                     item0.Price = Number(item0.Price)  + Number(veh1.Price);
-                                    // console.log("item0.Price", item0.Price);
+                                     console.log("item0.Price", item0.Price);
                                 }
 
                                 delete item0.RateCode;
@@ -99,13 +121,13 @@ function getTransfersFromJson(json){
 function getRateCodeByCountry(uni_country_id){
     switch (uni_country_id){
         case '228':
-            return "4XSC6";
+            return "ST877";
         case '217':
             return "9CN2L";
         case '208':
             return  "8PCNF";//"NZ8FC";
         default:
-            return "4XSC6";
+            return "ST877";
     }
 }
 
@@ -146,7 +168,12 @@ const getFromUni = async (uni_country_id, uni_hotel_id,room_id,start
     </envelope>`; 
     //  console.log(xmlBodyStr);
      const xml_out = await getFetchUni(xmlBodyStr);
-    //  console.log(xml_out);
+
+        //  fs.writeFile('./xmlBodyStr'+uni_hotel_id+'.xml', xml_out, { flag: 'a+' }, err => {
+        //         if (err) {
+        //             console.error(err);
+        //         }  
+        //     });
     
      return xml_out;
     
