@@ -34,6 +34,7 @@ async function handlePostDataJson(request, response){
 
     let data = await getFromUni(param.uni_country_id, param.uni_hotel_id,param.room_type_id,param.db
         ,param.de,param.ages,param.citizenship,2, myHandleData);
+        // console.log('data',data);
        let json = await xmlParser.toJson(data);  
        const transfers =  await getTransfersFromJson(json);  
     //    console.log(json);
@@ -71,7 +72,7 @@ function getTransfersFromJson(json){
 
     // console.log('transArr1',transArr1);
 
-    // console.log('transArr',transArr);
+    //  console.log('transArr',transArr);
 
 
     if(transArr && Array.isArray(transArr)){
@@ -167,7 +168,9 @@ const getFromUni = async (uni_country_id, uni_hotel_id,room_id,start
       </query_request>
     </envelope>`; 
     //  console.log(xmlBodyStr);
-     const xml_out = await getFetchUni(xmlBodyStr);
+    let xml_out = await getFetchUni(xmlBodyStr);
+
+    xml_out =   xml_out.replaceAll("\x02",' ').replaceAll('U+00a0',' ')  ;  
 
         //  fs.writeFile('./xmlBodyStr'+uni_hotel_id+'.xml', xml_out, { flag: 'a+' }, err => {
         //         if (err) {
@@ -190,7 +193,8 @@ const getFromUni = async (uni_country_id, uni_hotel_id,room_id,start
       headers: {
           'Content-Type': 'text/xml',
       },
-      body:xml_in
+      body:xml_in,
+      signal: AbortSignal.timeout( 400000 )
     });
     if (!response.ok) throw Error(response.statusText);
     const xml =  response.text(); 
